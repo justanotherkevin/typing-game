@@ -6,3 +6,4 @@ Game start as first word is input correctly.
 
 3 Game speed at 10, 7, 4, seconds count down. 
 
+Hosted with Github pages at [here](https://polymer940c.github.io/typing-game/). 
