@@ -2,17 +2,10 @@
 
 // Available Levels
 const levels = {
-  easy: 5,
-  medium: 3,
-  hard: 1
+  easy: 10,
+  medium: 7,
+  hard: 4
 };
-
-// To change level
-const currentLevel = levels.easy;
-
-let time = currentLevel;
-let score = 0;
-let isPlaying;
 
 // DOM Elements
 const wordInput = document.querySelector('#word-input');
@@ -22,6 +15,31 @@ const timeDisplay = document.querySelector('#time');
 const message = document.querySelector('#message');
 const seconds = document.querySelector('#seconds');
 const difficulty = document.querySelector('#difficulty-selector');
+const btnRestart = document.getElementById('restart');
+const topScoreDisplay = document.getElementById('top-score');
+
+function returnSelectedDiffculity() {
+
+  for ( let i =0; i<difficulty.childElementCount; i++){
+    let workingNode = difficulty.children[i];
+    if ( workingNode.classList.contains('active') ) {
+      return workingNode.firstElementChild.name
+    }   
+    console.log (workingNode)
+  }
+}
+
+
+
+let score = 0;
+let isPlaying;
+let topScore = 0; 
+console.log(difficulty)
+// To change level
+let selectedDiffculity = levels[returnSelectedDiffculity()]; 
+let time = selectedDiffculity;
+
+
 
 // random words for game
 const words = [
@@ -51,28 +69,39 @@ const words = [
   'space',
   'definition'
 ];
+// set display second with javascript 
+seconds.innerHTML=time;
 
 difficulty.addEventListener('click', e => {
   if (e.target.tagName === 'INPUT') {
+    // take class active off all children
     for (let ele of difficulty.children) {
       if (ele.classList.contains('active')) ele.classList.remove('active');
     }
+    // add class active to clicked child
     e.target.parentElement.classList.toggle('active');
+    // set frontend and backend with selected
+    setData=(time)=> {
+      seconds.innerHTML = selectedDiffculity = time;
+    }
     switch (e.target.getAttribute('name')) {
       case 'medium':
-        levels.medium;
-        seconds.innerHTML = '3';
+        this.setData(levels.medium)
         break;
       case 'hard':
-        levels.hard;
-        seconds.innerHTML = '1';
+        this.setData(levels.hard)
         break;
       default:
-        levels.easy;
-        seconds.innerHTML = '5';
+        this.setData(levels.easy)
     }
   }
 });
+btnRestart.addEventListener('click', e=> {
+  score = 0;
+  inputClear();
+  isPlaying = false; 
+  time= selectedDiffculity
+})
 timeDisplay.addEventListener('change', e => {
   console.log(seconds);
 });
@@ -82,15 +111,17 @@ function inputClear() {
 
 wordInput.addEventListener('input', () => {
   if (matchWords()) {
-    init();
     inputClear();
+    time = selectedDiffculity + 1
+    score++;
+    isPlaying ? showWord(words) : init();
   }
 });
 
 // Initialize Game
 function init() {
   // Show number of seconds in UI
-  seconds.innerHTML = currentLevel;
+  seconds.innerHTML = selectedDiffculity;
   // Load word from array
   isPlaying = true;
   showWord(words);
@@ -107,7 +138,7 @@ function intervalCountDown() {
 // Start match
 function startMatch() {
   if (matchWords()) {
-    time = currentLevel + 1;
+    time = selectedDiffculity + 1;
     showWord(words);
     inputClear();
     score++;
@@ -142,12 +173,15 @@ function showWord(words) {
 
 // Countdown timer
 function countdown() {
-  console.log(isPlaying);
   if (isPlaying === true && time > 0) {
     time--;
   } else if (time === 0) {
     // Game is over
     isPlaying = false;
+    topScore = Math.max(score, topScore);
+    topScoreDisplay.innerText = topScore;
+    clearInterval(init);
+    clearInterval(intervalCountDown);
   }
   // Show time
   timeDisplay.innerHTML = time;
@@ -157,7 +191,8 @@ function countdown() {
 function checkStatus() {
   if (isPlaying && time === 0) {
     message.innerHTML = 'Game Over!!!';
-    score = -1;
+    // score = -1;
+    
   }
 }
 
